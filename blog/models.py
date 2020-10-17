@@ -1,6 +1,14 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
+
+class PostQuerySet(models.QuerySet):
+    def published(self):
+        self.filter(status=self.model.PUBLISHED)
+
+    def drafts(self):
+        self.filter(status=self.model.DRAFT)
 
 class Topic(models.Model):
     name = models.CharField(
@@ -38,6 +46,7 @@ class Post(models.Model):
         related_name='blog_posts',  # "This" on the user model
         null=False,
     )
+    objects = PostQuerySet.as_manager()
     status = models.CharField(
         max_length=10,
         choices=STATUS_CHOICES,
@@ -56,6 +65,10 @@ class Post(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True)  # Sets on create
     updated = models.DateTimeField(auto_now=True)  # Updates on each save
+    def publish(self):
+        """Publishes this post"""
+        self.status = self.PUBLISHED
+        self.published = timezone.now()  # The current datetime with timezone
     class Meta:
         ordering = ['-created']
     def __str__(self):
