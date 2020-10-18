@@ -1,0 +1,13 @@
+# .travis.yml
+
+language: python
+python: "3.8.5"
+sudo: required
+dist: xenial
+install:
+  - pip install -r requirements.txt -r test-requirements.txt
+script:
+  - pytest -v
+  - find . -name '*.py' | xargs pylint
+services:
+  - postgresql
