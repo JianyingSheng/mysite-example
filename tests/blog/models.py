@@ -5,8 +5,10 @@ from django.utils import timezone
 
 class PostQuerySet(models.QuerySet):
     def published(self):
-        return self.filter(status=self.model.PUBLISHED)
+        self.filter(status=self.model.PUBLISHED)
 
+    def drafts(self):
+        self.filter(status=self.model.DRAFT)
 
 class Topic(models.Model):
     name = models.CharField(
