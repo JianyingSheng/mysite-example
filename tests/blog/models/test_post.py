@@ -4,6 +4,8 @@ from model_mommy import mommy
 import pytest
 
 from blog.models import Post
+import datetime as dt
+from freezegun import freeze_time
 
 # Mark this test module as requiring the database
 pytestmark = pytest.mark.django_db
@@ -27,3 +29,12 @@ def test_publish_sets_status_to_published():
     post = mommy.make('blog.Post', status=Post.DRAFT)
     post.publish()
     assert post.status == Post.PUBLISHED
+
+@freeze_time(dt.datetime(2030, 6, 1, 12), tz_offset=0)  # Replaces now()
+def test_publish_sets_published_to_current_datetime():
+    # Create a new post, and ensure no published datetime is set
+    post = mommy.make('blog.Post', published=None)
+    post.publish()
+
+    # Set the timezone to UTC (to match tz_offset=0)
+    assert post.published == dt.datetime(2030, 6, 1, 12, tzinfo=dt.timezone.utc)
